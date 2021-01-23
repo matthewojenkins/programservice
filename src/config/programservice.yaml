@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-sql-proxy
+spec:
+  selector:
+    app: CloudSQLProxy
+  ports:
+    - protocol: TCP
+      port: 3305
+      targetPort: 3305
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-sql-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: CloudSQLProxy
+  template:
+    metadata:
+      labels:
+        app: CloudSQLProxy
+    spec:
+      containers:
+        - name: cloud-sql-proxy
+          image: cloud-sql-proxy:1.1
+          ports:
+            - containerPort: 3305
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: program-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: programservice
+  template:
+    metadata:
+      labels:
+        app: programservice
+    spec:
+      containers:
+        - name: programservice
+          image: programservice:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
